@@ -102,6 +102,55 @@ $wc_handler = '<script>(function(){
   } else { bind(); }
   setTimeout(bind, 1500); setTimeout(bind, 3500);
 })();</script>';
+
+// Variant swatch -> main image switcher (original used Shopify section rendering, broken on static clone)
+$wc_handler .= '<script>(function(){
+  function basename(u){ return (u||"").split("?")[0].split("/").pop(); }
+  function init(){
+    var pj = document.querySelector("script.kaching-bundles-product");
+    if (!pj) return;
+    var data; try { data = JSON.parse(pj.textContent); } catch(_) { return; }
+    var colorToFile = {};
+    (data.variants || []).forEach(function(v){
+      if (v.options && v.options[0] && v.image) colorToFile[v.options[0]] = basename(v.image);
+    });
+    var slides = Array.prototype.slice.call(document.querySelectorAll("li.product__media-item"));
+    function slideForFile(fn){
+      for (var i = 0; i < slides.length; i++) {
+        var img = slides[i].querySelector("img");
+        if (img && basename(img.getAttribute("src")) === fn) return slides[i];
+      }
+      return null;
+    }
+    function activateSlide(target){
+      if (!target) return;
+      slides.forEach(function(li){ li.classList.remove("is-active"); });
+      target.classList.add("is-active");
+      var slider = target.closest("ul");
+      if (slider) slider.scrollTo({ left: target.offsetLeft - slider.offsetLeft, behavior: "smooth" });
+    }
+    // color swatch click
+    document.querySelectorAll("input.swatch-input__input").forEach(function(r){
+      r.addEventListener("change", function(){
+        var sel = document.querySelector("[data-selected-value]");
+        if (sel) sel.textContent = r.value;
+        activateSlide(slideForFile(colorToFile[r.value]));
+      });
+    });
+    // thumbnail click fallback
+    document.querySelectorAll("li.thumbnail-list__item").forEach(function(li){
+      var btn = li.querySelector("button.thumbnail");
+      if (!btn) return;
+      btn.addEventListener("click", function(){
+        var t = li.getAttribute("data-target");
+        var target = document.querySelector("li.product__media-item[data-media-id=\'" + t + "\']");
+        activateSlide(target);
+      });
+    });
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();</script>';
 $html = preg_replace( "#</body>#i", $wc_handler . "</body>", $html, 1 );
 // === END BORIS PATCH ===
 
