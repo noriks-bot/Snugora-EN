@@ -122,29 +122,45 @@ $wc_handler .= '<script>(function(){
       }
       return null;
     }
-    function activateSlide(target){
-      if (!target) return;
-      slides.forEach(function(li){ li.classList.remove("is-active"); });
-      target.classList.add("is-active");
-      var slider = target.closest("ul");
-      if (slider) slider.scrollTo({ left: target.offsetLeft - slider.offsetLeft, behavior: "smooth" });
+    function mainImg(){
+      return document.querySelector("li.product__media-item.is-active img") ||
+             document.querySelector("li.product__media-item img");
     }
-    // color swatch click
+    function showSlideImage(slide, fn){
+      var mi = mainImg();
+      if (!mi) return;
+      if (slide) {
+        var si = slide.querySelector("img");
+        if (si) {
+          if (si.getAttribute("srcset")) { mi.setAttribute("srcset", si.getAttribute("srcset")); }
+          else { mi.removeAttribute("srcset"); }
+          mi.src = si.getAttribute("src");
+          return;
+        }
+      }
+      if (fn) {
+        mi.removeAttribute("srcset");
+        mi.src = "/static/site/cdn/shop/files/" + fn + "?width=1946";
+      }
+    }
+    // color swatch click -> swap main image src
     document.querySelectorAll("input.swatch-input__input").forEach(function(r){
       r.addEventListener("change", function(){
         var sel = document.querySelector("[data-selected-value]");
         if (sel) sel.textContent = r.value;
-        activateSlide(slideForFile(colorToFile[r.value]));
+        var fn = colorToFile[r.value];
+        if (!fn) return;
+        showSlideImage(slideForFile(fn), fn);
       });
     });
-    // thumbnail click fallback
+    // thumbnail click -> swap main image src
     document.querySelectorAll("li.thumbnail-list__item").forEach(function(li){
       var btn = li.querySelector("button.thumbnail");
       if (!btn) return;
       btn.addEventListener("click", function(){
         var t = li.getAttribute("data-target");
         var target = document.querySelector("li.product__media-item[data-media-id=\'" + t + "\']");
-        activateSlide(target);
+        showSlideImage(target, null);
       });
     });
   }
