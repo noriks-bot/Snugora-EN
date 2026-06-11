@@ -49,6 +49,9 @@ $html = preg_replace(
         // Bare /cdn/ refs (resolve to non-existent on our domain)
         '#<script[^>]*src="/cdn/[^"]*"[^>]*></script>#i',
         '#<link[^>]*href="/cdn/[^"]*"[^>]*>#i',
+        // Shopify app widgets we don\'t want / that 404 (upsell, upcart, post-purchase, content protector)
+        '#<script[^>]*src="[^"]*(protector\.js|lb-utils|lb-upsell|upcart|post-purchase-upsell|aftersell|standard-actions\.js|stylex-)[^"]*"[^>]*>\s*</script>#i',
+        '#<link[^>]*href="[^"]*(lb-utils|lb-upsell|upcart|post-purchase-upsell|aftersell|standard-actions\.js|stylex-)[^"]*"[^>]*>#i',
     ),
     "\n",
     $html
