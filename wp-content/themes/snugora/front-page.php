@@ -83,7 +83,6 @@ $wc_handler = '<script>(function(){
         var body = new URLSearchParams();
         body.append("product_id", PID);
         body.append("quantity", qty);
-        body.append("add-to-cart", PID);
         fetch("/?wc-ajax=add_to_cart", {
           method: "POST",
           credentials: "include",
