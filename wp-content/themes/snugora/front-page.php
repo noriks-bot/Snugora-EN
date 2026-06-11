@@ -163,6 +163,22 @@ $wc_handler .= '<script>(function(){
         showSlideImage(target, null);
       });
     });
+    // keep ATC button always enabled for every color (theme marks some variants unavailable)
+    function fixAtcButtons(){
+      document.querySelectorAll("button[name=\'add\'], button.product-form__submit").forEach(function(b){
+        if (b.disabled) b.disabled = false;
+        if (b.hasAttribute("disabled")) b.removeAttribute("disabled");
+        if (b.classList.contains("disabled")) b.classList.remove("disabled");
+        if (b.getAttribute("aria-disabled") === "true") b.setAttribute("aria-disabled", "false");
+        var sp = b.querySelector("span") || b;
+        var t = (sp.textContent || "").trim().toLowerCase();
+        if (t.indexOf("unavailable") !== -1 || t.indexOf("sold out") !== -1) {
+          sp.textContent = "ADD TO CART";
+        }
+      });
+    }
+    fixAtcButtons();
+    setInterval(fixAtcButtons, 500);
   }
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
   else { init(); }
